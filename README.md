@@ -14,5 +14,6 @@ Some additonal QC was done on these data, and the resulting data is stored along
 
 
 #### Code order: 
-1. Run the QC_sg*.ipynb files to do some additional QC on the data, which will be used for most of the analysis in the paper. 
-2. 
+1. Run the `QC_sg*.ipynb` files to do some additional QC on the data, which will be used for most of the analysis in the paper. (Generated the data files `sg_*_4m_binned.nc`)
+2. Run Z_grid_to_isopycnal_grid.ipynb to do the interpolation from depth to isopycnal surfaces. (Generated the data files sg_*_iso_grid.nc)
+3.

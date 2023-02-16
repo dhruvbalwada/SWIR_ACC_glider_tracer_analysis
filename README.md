@@ -17,6 +17,10 @@ Some additonal QC was done on these data, and the resulting data is stored along
 The RG Argo Climatology used to make figure 1 can be accessed from https://sio-argo.ucsd.edu/RG_Climatology.html.
 
 #### Code order: 
+
 1. Run the `QC_sg*.ipynb` files to do some additional QC on the data, which will be used for most of the analysis in the paper. (Generated the data files `sg_*_4m_binned.nc`)
 2. Run Z_grid_to_isopycnal_grid.ipynb to do the interpolation from depth to isopycnal surfaces. (Generated the data files sg_*_iso_grid.nc)
-3. Cut out RG Climatology for the SOGOS region
+3. Cut out RG Climatology for the SOGOS region using `select_RG_climatology_region.ipynb`.
+
+Figure notebooks: 
+- `sampling_resolution_plots.ipynb` 

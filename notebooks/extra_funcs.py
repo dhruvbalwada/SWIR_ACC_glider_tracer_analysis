@@ -33,3 +33,84 @@ def func_var_int(ds, var, rho_grid, flag='group'):
     return xr.DataArray(var_tilde.reshape((-1,1)),
                         dims = ['rho_grid', 'dives'],
                         coords = {'rho_grid': rho_grid, 'dives': [dive_num]}).rename(var)
+
+
+def interp_time(ds, var): 
+    time_grid = np.arange(121, 205, 1/24)
+
+   
+    for i in range(len(ds.ctd_pressure)):
+        ds_temp =ds.isel(ctd_pressure=i)
+        
+        f = interpolate.interp1d(ds_temp.days, ds_temp[var])
+        var_int = f(time_grid)
+        
+        da_var_int_temp = xr.DataArray(var_int,
+                                 dims=["days"],
+                                 coords={"days": time_grid, "ctd_pressure": ds_temp.ctd_pressure}
+                                 ).rename(var)
+        
+        if i==0:
+            da_var_int = da_var_int_temp
+        else:
+            da_var_int = xr.concat([da_var_int, da_var_int_temp], dim='ctd_pressure')
+        
+    return da_var_int
+
+def great_circle_distance(lon1, lat1, lon2, lat2):
+    """Calculate the great circle distance between one or multiple pairs of
+    points given in spherical coordinates. Spherical coordinates are expected
+    in degrees. Angle definition follows standard longitude/latitude definition.
+    This uses the arctan version of the great-circle distance function
+    (en.wikipedia.org/wiki/Great-circle_distance) for increased
+    numerical stability.
+    Parameters
+    ----------
+    lon1: float scalar or numpy array
+        Longitude coordinate(s) of the first element(s) of the point
+        pair(s), given in degrees.
+    lat1: float scalar or numpy array
+        Latitude coordinate(s) of the first element(s) of the point
+        pair(s), given in degrees.
+    lon2: float scalar or numpy array
+        Longitude coordinate(s) of the second element(s) of the point
+        pair(s), given in degrees.
+    lat2: float scalar or numpy array
+        Latitude coordinate(s) of the second element(s) of the point
+        pair(s), given in degrees.
+    Calculation of distances follows numpy elementwise semantics, so if
+    an array of length N is passed, all input parameters need to be
+    arrays of length N or scalars.
+    Returns
+    -------
+    distance: float scalar or numpy array
+        The great circle distance(s) (in degrees) between the
+        given pair(s) of points.
+    """
+    # Convert to radians:
+    lat1 = np.array(lat1) * np.pi / 180.0
+    lat2 = np.array(lat2) * np.pi / 180.0
+    dlon = (lon1 - lon2) * np.pi / 180.0
+
+    # Evaluate trigonometric functions that need to be evaluated more
+    # than once:
+    c1 = np.cos(lat1)
+    s1 = np.sin(lat1)
+    c2 = np.cos(lat2)
+    s2 = np.sin(lat2)
+    cd = np.cos(dlon)
+
+    # This uses the arctan version of the great-circle distance function
+    # from en.wikipedia.org/wiki/Great-circle_distance for increased
+    # numerical stability.
+    # Formula can be obtained from [2] combining eqns. (14)-(16)
+    # for spherical geometry (f=0).
+
+    return (
+        180.0
+        / np.pi
+        * np.arctan2(
+            np.sqrt((c2 * np.sin(dlon)) ** 2 + (c1 * s2 - s1 * c2 * cd) ** 2),
+            s1 * s2 + c1 * c2 * cd,
+        )
+    )

@@ -1,6 +1,8 @@
 import numpy as np
 import scipy.interpolate as interpolate
 import xarray as xr
+import glidertools as gt
+
 
 def datetime2ytd(time):
     
@@ -114,3 +116,40 @@ def great_circle_distance(lon1, lat1, lon2, lat2):
             s1 * s2 + c1 * c2 * cd,
         )
     )
+
+
+
+def interp_distance(ds, var, vert_axis = 'ctd_pressure'): 
+
+    #print (ds.longitude.mean(vert_axis))
+    distance = np.cumsum(gt.utils.distance(ds.longitude.mean(vert_axis), 
+                                           ds.latitude.mean(vert_axis)))
+    
+    #print(distance)
+    dist_grid = np.arange(0, distance.max(), 500)
+
+    for i in range(len(ds[vert_axis])): 
+        
+        #ds_temp = ds.isel(ctd_pressure=i) # would be nice if this was indexed without the hard coding
+         
+        #data = ds_temp[var].values
+        
+        ds_temp = ds[var][i,:]
+        data = ds_temp.values
+        
+        f = interpolate.interp1d(distance, data, fill_value=np.nan)
+        
+        var_int = f(dist_grid)
+        
+        da_var_int_temp = xr.DataArray(var_int,
+                                 dims=["distance"],
+                                 coords={"distance": dist_grid, vert_axis: ds_temp[vert_axis]}
+                                 ).rename(var)
+        
+        if i==0:
+            da_var_int = da_var_int_temp
+        else:
+            da_var_int = xr.concat([da_var_int, da_var_int_temp], dim=vert_axis)
+        
+    return da_var_int
+            

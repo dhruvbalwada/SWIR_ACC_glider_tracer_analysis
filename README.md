@@ -24,4 +24,4 @@ The RG Argo Climatology used to make figure 1 can be accessed from https://sio-a
 
 Figure notebooks: 
 - `sampling_resolution_plots.ipynb` - Generates figure to look at the horizontal and vertical sampling resolution of the gliders.
-- `introduction_plot.ipynb` - Generates Figure 1 in the paper. 
+- 'Figure*.ipynb' - These notebooks generate the figures in the main text, and also some of the figures in the SI that are complementary to these main figures. 

@@ -59,6 +59,28 @@ def interp_time(ds, var):
         
     return da_var_int
 
+
+def interp_time_rho(ds, var): 
+    time_grid = np.arange(121, 205, 1/24)
+
+   
+    for i in range(len(ds.rho_grid)):
+        ds_temp =ds.isel(rho_grid=i)
+        f = interpolate.interp1d(ds_temp.days, ds_temp[var], bounds_error=False)
+        var_int = f(time_grid)
+        
+        da_var_int_temp = xr.DataArray(var_int,
+                                 dims=["days"],
+                                 coords={"days": time_grid, "rho_grid": ds_temp.rho_grid}
+                                 ).rename(var)
+        
+        if i==0:
+            da_var_int = da_var_int_temp
+        else:
+            da_var_int = xr.concat([da_var_int, da_var_int_temp], dim='rho_grid')
+        
+    return da_var_int
+
 def great_circle_distance(lon1, lat1, lon2, lat2):
     """Calculate the great circle distance between one or multiple pairs of
     points given in spherical coordinates. Spherical coordinates are expected
